@@ -404,10 +404,11 @@ fetch('catalog.json?v='+Date.now()).then(r=>r.json()).then(d=>{
       if(/legend|epic|mythic|character|k\/d|cp|bp/.test(xl)){out.push(x.trim().slice(0,22));}
       if(out.length>=3)break;}return out.length?out:['instant delivery'];
   };
-  const esc=s=>(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  const esc=s=>(s==null?'':String(s)).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const safeHttp=s=>{try{const u=new URL(String(s||''),location.href);return (u.protocol==='https:'||u.protocol==='http:')?u.href:'';}catch(e){return '';}};
   pg.innerHTML=idxs.map(i=>{const o=d[i];return `
-    <a class="pc" href="${o.url}" target="_blank" rel="noopener">
-      ${o.thumb||o.img?`<div class="pcimg"><img loading="lazy" src="${o.thumb||o.img}" alt="" onerror="this.parentElement.style.display='none'"></div>`:''}
+    <a class="pc" href="${esc(safeHttp(o.url))}" target="_blank" rel="noopener">
+      ${o.thumb||o.img?`<div class="pcimg"><img loading="lazy" src="${esc(safeHttp(o.thumb||o.img))}" alt="" onerror="this.parentElement.style.display='none'"></div>`:''}
       <div class="row1"><span class="id">${esc(o.level||'CoDM')}</span><span class="p">$${o.price.toFixed(2)}</span></div>
       <div class="t">${esc(o.title)}</div>
       <div class="feats">${chips(o.title).map(c=>`<span>${esc(c)}</span>`).join('')}</div>

@@ -256,7 +256,8 @@ footer{text-transform:none;letter-spacing:.04em}
 <script>
 let DATA=[];
 const grid=document.getElementById('grid');
-const esc=s=>(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const esc=s=>(s==null?'':String(s)).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const safeHttp=s=>{try{const u=new URL(String(s||''),location.href);return (u.protocol==='https:'||u.protocol==='http:')?u.href:'';}catch(e){return '';}};
 
 function render(){
   const q=(document.getElementById('q').value||'').toLowerCase().trim();
@@ -288,7 +289,7 @@ function render(){
         <div class="t">${esc(o.title)}</div>
         <button class="more" onclick="toggleDesc(this)">More details ▾</button>
         <div class="desc">${esc(o.desc)}</div>
-        <a class="go" href="${esc(o.url)}" target="_blank" rel="noopener">Proceed to store</a>
+        <a class="go" href="${esc(safeHttp(o.url))}" target="_blank" rel="noopener">Proceed to store</a>
       </div>
     </article>`).join('');
 }
@@ -299,13 +300,13 @@ function toggleDesc(btn){
 }
 function openModal(id){
   const o=DATA.find(x=>x.id===id); if(!o) return;
-  document.getElementById('m-img').src=o.img||o.thumb;
+  document.getElementById('m-img').src=safeHttp(o.img||o.thumb);
   document.getElementById('m-img').style.display=o.img||o.thumb?'block':'none';
   document.getElementById('m-price').textContent='$'+o.price.toFixed(2);
   document.getElementById('m-lvl').textContent=o.level||'CoDM';
   document.getElementById('m-title').textContent=o.title;
   document.getElementById('m-desc').textContent=o.desc||'Contact us on ZeusX for full details.';
-  document.getElementById('m-go').href=o.url;
+  document.getElementById('m-go').href=safeHttp(o.url);
   document.getElementById('modal').classList.add('open');
   document.body.style.overflow='hidden';
 }
